@@ -16,7 +16,7 @@ from DownLoader2 import GetRandomUserAgent
 
 ###############################
 
-gThreadCount = 4   #设置线程数
+gThreadCount = 16   #设置线程数
 
 ###############################
 
@@ -52,9 +52,14 @@ def SetLoginResponse():
 
 
 
-def SetPdfURLDictList():
+def SetPdfURLDictList(path="../doc/AllPdfURL.txt"):
 
-    with open("../doc/AllPdfURL.txt", "r") as inFile:
+    if not os.path.exists(path):
+        raise ValueError
+
+    gPdfURLDictList = []  #清空
+
+    with open(path, "r") as inFile:
         if __name__ == '__main__':
             lineList = inFile.readlines()
             for line in lineList:
@@ -91,7 +96,19 @@ def DownloadPdf( inPdfURLDict):
     print(areaDir)
     print(carDir)
     tmpUerAgent = GetRandomUserAgent()
-    response = gSession.get(pdfURL, cookies=gLogin.cookies, headers=tmpUerAgent)
+    try:
+        response = gSession.get(pdfURL, cookies=gLogin.cookies, headers=tmpUerAgent)
+    except:
+        with open("../doc/errorLog.txt", "a+") as errorLogFile:
+            errorLogFile.write("{0}\t{1}\t{2}\t{3}\t{4}\n".format(
+	            inPdfURLDict.get("areaName"),
+                inPdfURLDict.get("carCnName"),
+                inPdfURLDict.get("carEnName"),
+                inPdfURLDict.get("verNo"),
+                inPdfURLDict.get("pdfURL"),
+            ))
+        print("ERROR:{0}".format(pdfURL))
+        return
 
     tmpStr = response.headers.get('Content-Disposition')
     if not isinstance(tmpStr, str):
@@ -168,8 +185,14 @@ def main():
     SetLoginResponse()
     SetPdfURLDictList()
 
-    #JobDistribute(0, len(gPdfURLDictList)) #全部下载
-    JobDistribute(0, 11) #全部下载
+    JobDistribute(0, len(gPdfURLDictList)) #全部下载
+    #JobDistribute(3059, 3340-3059) #美国区域
+    #JobDistribute(0, 11) #下载
+
+
+    #再次尝试下载之前失败的
+    SetPdfURLDictList("../doc/errorLog.txt")
+    JobDistribute(0, len(gPdfURLDictList))
 
 
     pass
