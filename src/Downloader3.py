@@ -57,6 +57,7 @@ def SetPdfURLDictList(path="../doc/AllPdfURL.txt"):
     if not os.path.exists(path):
         raise ValueError
 
+    global gPdfURLDictList
     gPdfURLDictList = []  #清空
 
     with open(path, "r") as inFile:
@@ -70,7 +71,6 @@ def SetPdfURLDictList(path="../doc/AllPdfURL.txt"):
                 if len(tmpSplitedList) != 5:
                     raise ValueError
 
-                global gPdfURLDictList
                 gPdfURLDictList.append( dict(
                     areaName = tmpSplitedList[0].strip(),
                     carCnName = tmpSplitedList[1].strip(),
@@ -96,6 +96,17 @@ def DownloadPdf( inPdfURLDict):
     print(areaDir)
     print(carDir)
     tmpUerAgent = GetRandomUserAgent()
+
+    #如果直接以版本号命名的话,直接判断"版本号.pdf"文件是否存在即可;如果存在,就不再下载
+    if os.path.exists(u"../doc/tmp/{0}/{1}/{2}.pdf".format(areaDir, carDir, verNo)):
+        return
+
+    #如果此文件已经下载,则跳过
+    if os.path.exists(u"../doc/tmp/{0}/{1}".format(areaDir, carDir)):
+        for fileName in os.listdir(u"../doc/tmp/{0}/{1}".format(areaDir, carDir)):
+            if verNo in fileName:
+                return
+
     try:
         response = gSession.get(pdfURL, cookies=gLogin.cookies, headers=tmpUerAgent)
     except:
