@@ -202,8 +202,9 @@ def main():
 
 
     #再次尝试下载之前失败的
-    SetPdfURLDictList("../doc/errorLog.txt")
-    JobDistribute(0, len(gPdfURLDictList))
+    if os.path.exists("../doc/errorLog.txt") :
+        SetPdfURLDictList("../doc/errorLog.txt")
+        JobDistribute(0, len(gPdfURLDictList))
 
 
     pass
