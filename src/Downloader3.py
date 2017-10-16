@@ -16,7 +16,7 @@ from DownLoader2 import GetRandomUserAgent
 
 ###############################
 
-gThreadCount = 8   #设置线程数
+gThreadCount = 4   #设置线程数
 
 ###############################
 
@@ -104,10 +104,10 @@ def DownloadPdf( inPdfURLDict):
 
     fileName = tmpStr[tmpStr.find('=') + 1:]
 
-    if not os.path.exists(u"../doc/tmp/{0}".format(areaDir)):
-        os.mkdir(u"../doc/tmp/{0}".format(areaDir))
+    #if not os.path.exists(u"../doc/tmp/{0}".format(areaDir)):
+    #    os.mkdir(u"../doc/tmp/{0}".format(areaDir))
     if not os.path.exists(u"../doc/tmp/{0}/{1}".format(areaDir, carDir)):
-        os.mkdir(u"../doc/tmp/{0}/{1}".format(areaDir, carDir))
+        os.makedirs(u"../doc/tmp/{0}/{1}".format(areaDir, carDir))
 
     with open(u"../doc/tmp/{0}/{1}/{2}".format(areaDir, carDir, "("+verNo+")"+fileName), "wb") as outFile:   #必须是二进制模式
         outFile.writelines(response.content)
@@ -168,7 +168,8 @@ def main():
     SetLoginResponse()
     SetPdfURLDictList()
 
-    JobDistribute(0, len(gPdfURLDictList)) #全部下载
+    #JobDistribute(0, len(gPdfURLDictList)) #全部下载
+    JobDistribute(0, 11) #全部下载
 
 
     pass
